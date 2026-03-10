@@ -37,8 +37,8 @@ ocp4_workload_showroom_ai_assistant_llamastack_storage: 10Gi
 ocp4_workload_showroom_ai_assistant_hfcache_storage: 10Gi
 
 # Images for the AI assistant
-ocp4_workload_showroom_ai_assistant_image: quay.io/jfalkner1/showroom-ai-assistant:latest
-ocp4_workload_showroom_ai_assistant_rag_image: quay.io/jfalkner1/showroom-ai-assistant-vectors:latest
+ocp4_workload_showroom_ai_assistant_image: quay.io/bluesman/showroom-ai-assistant:latest
+ocp4_workload_showroom_ai_assistant_rag_image: quay.io/bluesman/showroom-ai-assistant-vectors:latest
 ocp4_workload_showroom_ai_assistant_mcp_kube_image: docker.io/node:20
 ocp4_workload_showroom_ai_assistant_lls_image: docker.io/llamastack/distribution-starter:0.3.2
 
