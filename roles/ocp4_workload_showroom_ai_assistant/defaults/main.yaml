@@ -45,7 +45,10 @@ ocp4_workload_showroom_ai_assistant_mcp_kube_image: docker.io/node:20
 ocp4_workload_showroom_ai_assistant_lls_image: docker.io/ogxai/distribution-starter:1.0.2
 
 
-ocp4_workload_showroom_ai_assistant_mcp_kube_npm_package: kubernetes-mcp-server@latest
+# Pinned: kubernetes-mcp-server removed the --port flag in 0.0.68, where the
+# HTTP server moved to --config TOML. 0.0.67 is the last release the
+# deployment's `npx ... --port 3000` invocation works with.
+ocp4_workload_showroom_ai_assistant_mcp_kube_npm_package: kubernetes-mcp-server@0.0.67
 
 # Vector store layout. The vectors image ships distributions/starter/{files,kvstore.db}
 # under /vector-data, and OGX resolves its store from SQLITE_STORE_DIR.

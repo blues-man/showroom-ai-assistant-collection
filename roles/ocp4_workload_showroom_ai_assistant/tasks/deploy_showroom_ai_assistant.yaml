@@ -139,29 +139,53 @@
   ansible.builtin.set_fact:
     _route_url: "https://{{ r_route_info.resources[0].spec.host }}"
 
-- name: Trigger Showroom AI Assistant RAG lookup via chat API
+# Deterministic readiness gate. The pod is only in the Service endpoints once
+# every container is ready, so a 200 here also proves the sidecars are up.
+- name: Wait for Showroom AI Assistant API to report healthy
   when: _route_url is defined
   ansible.builtin.uri:
-    url: "{{ _route_url }}/api/rag/query"
+    url: "{{ _route_url }}/api/health"
+    method: GET
+    validate_certs: false
+    status_code: [200]
+    timeout: 10
+  register: r_api_health
+  ignore_errors: true
+  retries: 30
+  delay: 5
+  until: r_api_health is not failed
+
+# End-to-end smoke test: exercises the vector store, OGX and the LLM endpoint.
+# /api/chat/stream returns SSE, so give it room -- uri blocks until the stream
+# closes. Non-fatal by design; the health gate above is the real check.
+- name: Trigger Showroom AI Assistant RAG lookup via chat API
+  when:
+    - _route_url is defined
+    - r_api_health is succeeded
+  ansible.builtin.uri:
+    url: "{{ _route_url }}/api/chat/stream"
     method: POST
     body_format: json
     body:
-      query: "What is this workshop about?"
+      message: "What is this workshop about?"
+      agent_type: "lab_content"
     headers:
       Content-Type: application/json
     validate_certs: false
     status_code: [200, 201, 202]
-    timeout: 30
+    timeout: 120
   register: r_api_test
   ignore_errors: true
-  retries: 10
-  delay: 5
+  retries: 3
+  delay: 10
   until: r_api_test is not failed
 
 - name: Show Showroom AI Assistant API test result
   when: _route_url is defined
   ansible.builtin.debug:
-    msg: "API test {{ 'succeeded' if r_api_test is succeeded else 'failed' }} - Route URL: {{ _route_url }}/api/rag/query"
+    msg:
+      - "Health gate: {{ 'ok' if r_api_health is succeeded else 'FAILED' }} - {{ _route_url }}/api/health"
+      - "RAG smoke test: {{ 'skipped' if r_api_test.skipped | default(false) else ('ok' if r_api_test is succeeded else 'FAILED') }} - {{ _route_url }}/api/chat/stream"
 
 - name: Get logs from all Showroom AI Assistant containers using k8s_log module
   when:
