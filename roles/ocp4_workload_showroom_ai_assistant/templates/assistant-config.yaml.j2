@@ -38,11 +38,13 @@ llm:
 
   # LlamaStack will use this model for generating responses
   # The model name should match one of the enabled engines (e.g., "vllm/model-name")
-  model: "vllm/qwen3-14b"
+  model: "{{ ocp4_workload_showroom_ai_assistant_model }}"
 
   # Embedding model for RAG vector store
   # Can use a different engine than the main model (e.g., "ollama/nomic-embed-text")
-  # embedding_model: "openai/text-embedding-3-small"
+{% if ocp4_workload_showroom_ai_assistant_embedding_model %}
+  embedding_model: "{{ ocp4_workload_showroom_ai_assistant_embedding_model }}"
+{% endif %}
 
   # HTTP timeout in seconds for LlamaStack client requests
   # Increase this for slower models or when using local vLLM/Ollama
@@ -60,7 +62,7 @@ llm:
     # For local vLLM running on host machine, use host.containers.internal
     # Example: "http://host.containers.internal:8000/v1"
     # endpoint: "http://host.containers.internal:8000/v1"
-    endpoint: "https://litellm-prod.apps.maas.redhatworkshops.io/v1"
+    endpoint: "{{ _vllm_url }}"
     # Maximum tokens for vLLM generation
     # max_tokens: 4096
 

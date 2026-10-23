@@ -40,10 +40,23 @@ ocp4_workload_showroom_ai_assistant_hfcache_storage: 10Gi
 ocp4_workload_showroom_ai_assistant_image: quay.io/bluesman/showroom-ai-assistant:latest
 ocp4_workload_showroom_ai_assistant_rag_image: quay.io/bluesman/showroom-ai-assistant-vectors:latest
 ocp4_workload_showroom_ai_assistant_mcp_kube_image: docker.io/node:20
-ocp4_workload_showroom_ai_assistant_lls_image: docker.io/llamastack/distribution-starter:0.3.2
+# The backend in quay.io/bluesman/showroom-ai-assistant is built against OGX.
+# Keep this aligned with OGX_VERSION in the showroom repo's build-vectors workflow.
+ocp4_workload_showroom_ai_assistant_lls_image: docker.io/ogxai/distribution-starter:1.0.2
 
 
 ocp4_workload_showroom_ai_assistant_mcp_kube_npm_package: kubernetes-mcp-server@latest
+
+# Vector store layout. The vectors image ships distributions/starter/{files,kvstore.db}
+# under /vector-data, and OGX resolves its store from SQLITE_STORE_DIR.
+ocp4_workload_showroom_ai_assistant_vector_source_dir: "/vector-data"
+ocp4_workload_showroom_ai_assistant_data_dir: "/ogx"
+ocp4_workload_showroom_ai_assistant_ogx_store_dir: "/ogx/distributions/starter"
+
+# Model configuration (rendered into assistant-config.yaml)
+ocp4_workload_showroom_ai_assistant_model: "vllm/qwen3-14b"
+# Leave empty to use the backend default (text-embedding-3-small)
+ocp4_workload_showroom_ai_assistant_embedding_model: ""
 
 # Secret values (API keys and credentials)
 ocp4_workload_showroom_ai_assistant_vllm_api_token: "PLACEHOLDER_VLLM_API_TOKEN_REPLACE_ME"

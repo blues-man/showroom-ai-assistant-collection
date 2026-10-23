@@ -22,12 +22,12 @@
 - name: Verify Showroom AI Assistant Namespace exists
   ansible.builtin.include_tasks: verify_namespace.yaml
 
-- name: Extract VLLM API token from user info (user1)
+- name: Extract VLLM API token from user info
   when:
     - _showroom_vars is defined
-    - _showroom_vars.litellm_user1_virtual_key is defined
+    - _showroom_vars.litellm_user1_virtual_key is defined or _showroom_vars.litellm_virtual_key is defined
   ansible.builtin.set_fact:
-    _vllm_api_token: "{{ _showroom_vars.litellm_user1_virtual_key }}"
+    _vllm_api_token: "{{ _showroom_vars.litellm_user1_virtual_key | default(_showroom_vars.litellm_virtual_key) }}"
 
 - name: Use default VLLM API token if not found in user info
   when: _vllm_api_token is not defined
@@ -49,7 +49,7 @@
 - name: Show VLLM configuration source
   ansible.builtin.debug:
     msg:
-      - "VLLM API token for user1: {{ 'extracted from user info' if _showroom_vars is defined and _showroom_vars.litellm_user1_virtual_key is defined else 'using default from variables' }}"
+      - "VLLM API token: {{ 'extracted from user info' if _showroom_vars is defined and (_showroom_vars.litellm_user1_virtual_key is defined or _showroom_vars.litellm_virtual_key is defined) else 'using default from variables' }}"
       - "VLLM URL: {{ 'extracted from user info' if _showroom_vars is defined and _showroom_vars.litellm_api_base_url is defined else 'using default from variables' }}"
 
 - name: Deploy Showroom AI Assistant resources

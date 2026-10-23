@@ -8,4 +8,4 @@ metadata:
     app.kubernetes.io/name: {{ ocp4_workload_showroom_ai_assistant_name }}
 data:
   assistant-config.yaml: |
-{{ lookup('file', 'assistant-config.yaml') | indent(4, first=True) }}
+{{ lookup('template', 'assistant-config.yaml.j2') | indent(4, first=True) }}
