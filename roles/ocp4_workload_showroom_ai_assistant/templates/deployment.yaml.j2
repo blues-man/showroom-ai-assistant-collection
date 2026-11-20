@@ -113,7 +113,7 @@ spec:
 
       # OGX Container (inference + vector store)
       - name: ogx
-        image: {{ ocp4_workload_showroom_ai_assistant_lls_image }}
+        image: {{ ocp4_workload_showroom_ai_assistant_ogx_image }}
         ports:
         - containerPort: 8321
           name: ogx
@@ -135,16 +135,16 @@ spec:
           mountPath: /.cache
         resources:
           requests:
-            memory: "{{ ocp4_workload_showroom_ai_assistant_llamastack_requests_memory }}"
-            cpu: "{{ ocp4_workload_showroom_ai_assistant_llamastack_requests_cpu }}"
+            memory: "{{ ocp4_workload_showroom_ai_assistant_ogx_requests_memory }}"
+            cpu: "{{ ocp4_workload_showroom_ai_assistant_ogx_requests_cpu }}"
           limits:
-            memory: "{{ ocp4_workload_showroom_ai_assistant_llamastack_limits_memory }}"
-            cpu: "{{ ocp4_workload_showroom_ai_assistant_llamastack_limits_cpu }}"
+            memory: "{{ ocp4_workload_showroom_ai_assistant_ogx_limits_memory }}"
+            cpu: "{{ ocp4_workload_showroom_ai_assistant_ogx_limits_cpu }}"
 
       volumes:
       - name: ogx-data
         persistentVolumeClaim:
-          claimName: {{ ocp4_workload_showroom_ai_assistant_name }}-llamastack
+          claimName: {{ ocp4_workload_showroom_ai_assistant_name }}-ogx
       - name: hfcache
         persistentVolumeClaim:
           claimName: {{ ocp4_workload_showroom_ai_assistant_name }}-hfcache

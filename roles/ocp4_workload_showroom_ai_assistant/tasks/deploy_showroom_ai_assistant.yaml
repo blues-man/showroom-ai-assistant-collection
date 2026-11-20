@@ -22,8 +22,17 @@
 - name: Verify Showroom AI Assistant Namespace exists
   ansible.builtin.include_tasks: verify_namespace.yaml
 
+- name: Use VLLM API token from dedicated variable when set
+  when:
+    - ocp4_workload_showroom_ai_assistant_vllm_api_token is defined
+    - ocp4_workload_showroom_ai_assistant_vllm_api_token | length > 0
+    - ocp4_workload_showroom_ai_assistant_vllm_api_token != 'PLACEHOLDER_VLLM_API_TOKEN_REPLACE_ME'
+  ansible.builtin.set_fact:
+    _vllm_api_token: "{{ ocp4_workload_showroom_ai_assistant_vllm_api_token }}"
+
 - name: Extract VLLM API token from user info
   when:
+    - _vllm_api_token is not defined
     - _showroom_vars is defined
     - _showroom_vars.litellm_user1_virtual_key is defined or _showroom_vars.litellm_virtual_key is defined
   ansible.builtin.set_fact:
@@ -34,8 +43,16 @@
   ansible.builtin.set_fact:
     _vllm_api_token: "{{ ocp4_workload_showroom_ai_assistant_vllm_api_token }}"
 
+- name: Use VLLM URL from dedicated variable when set
+  when:
+    - ocp4_workload_showroom_ai_assistant_vllm_url is defined
+    - ocp4_workload_showroom_ai_assistant_vllm_url | length > 0
+  ansible.builtin.set_fact:
+    _vllm_url: "{{ ocp4_workload_showroom_ai_assistant_vllm_url }}"
+
 - name: Extract VLLM URL from user info
   when:
+    - _vllm_url is not defined
     - _showroom_vars is defined
     - _showroom_vars.litellm_api_base_url is defined
   ansible.builtin.set_fact:
@@ -49,8 +66,8 @@
 - name: Show VLLM configuration source
   ansible.builtin.debug:
     msg:
-      - "VLLM API token: {{ 'extracted from user info' if _showroom_vars is defined and (_showroom_vars.litellm_user1_virtual_key is defined or _showroom_vars.litellm_virtual_key is defined) else 'using default from variables' }}"
-      - "VLLM URL: {{ 'extracted from user info' if _showroom_vars is defined and _showroom_vars.litellm_api_base_url is defined else 'using default from variables' }}"
+      - "VLLM API token: {{ 'dedicated variable' if _vllm_api_token == ocp4_workload_showroom_ai_assistant_vllm_api_token | default('') and ocp4_workload_showroom_ai_assistant_vllm_api_token != 'PLACEHOLDER_VLLM_API_TOKEN_REPLACE_ME' else ('user info' if _showroom_vars is defined and (_showroom_vars.litellm_user1_virtual_key is defined or _showroom_vars.litellm_virtual_key is defined) and (_vllm_api_token == (_showroom_vars.litellm_user1_virtual_key | default('')) or _vllm_api_token == (_showroom_vars.litellm_virtual_key | default(''))) else 'default from variables') }}"
+      - "VLLM URL: {{ 'dedicated variable' if _vllm_url == ocp4_workload_showroom_ai_assistant_vllm_url | default('') else ('user info' if _showroom_vars is defined and _showroom_vars.litellm_api_base_url is defined and _vllm_url == _showroom_vars.litellm_api_base_url else 'default from variables') }}"
 
 - name: Deploy Showroom AI Assistant resources
   kubernetes.core.k8s:
